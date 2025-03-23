@@ -11,5 +11,6 @@ import (
 func RegisterRoutes(router *gin.Engine, sensorAirePublisher * messaging.SensorPublisher) {
 
 	RegisterSensorModule(router, sensorAirePublisher)
+	RegisterSensorHumedadModule(router)
 
 }

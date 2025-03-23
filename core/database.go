@@ -8,6 +8,7 @@ import (
 
 
 	sensorModels "Xilonen-1/sensor/domain/models"
+	sensorHumedadModels "Xilonen-1/humedadSuelo/domain/models"
 
 
 	"gorm.io/driver/postgres"
@@ -33,7 +34,7 @@ func DatabaseConnection() {
 
 	DB = db
 	log.Println("Conexión a la base de datos exitosa.")
-	err = DB.AutoMigrate(&sensorModels.SensorMQ135{})
+	err = DB.AutoMigrate(&sensorModels.SensorMQ135{}, &sensorHumedadModels.SensorLM393{})
 	if err != nil {
 		log.Fatalf("Error aplicando migración: %v", err)
 	}
