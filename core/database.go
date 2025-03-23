@@ -7,7 +7,7 @@ import (
 
 
 
-	sensorModels "holamundo/sensor/domain/models"
+	sensorModels "Xilonen-1/sensor/domain/models"
 
 
 	"gorm.io/driver/postgres"

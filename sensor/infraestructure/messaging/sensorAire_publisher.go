@@ -5,7 +5,7 @@ import (
 	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	"holamundo/sensor/domain/models"
+	"Xilonen-1/sensor/domain/models"
 )
 
 type SensorPublisher struct {
@@ -26,7 +26,7 @@ func NewSensorPublisher() (*SensorPublisher, error) {
 	}
 
 	q, err := ch.QueueDeclare(
-		"sensores",  
+		"sensores/mq135",  
 		true,       
 		false,      
 		false,      

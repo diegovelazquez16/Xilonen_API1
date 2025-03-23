@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"holamundo/core"
-	"holamundo/launch"
-	"holamundo/sensor/infraestructure/messaging"  // Agregado para consumir notificaciones
+	"Xilonen-1/core"
+	"Xilonen-1/launch"
+	"Xilonen-1/sensor/infraestructure/messaging"  // Agregado para consumir notificaciones
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
 )

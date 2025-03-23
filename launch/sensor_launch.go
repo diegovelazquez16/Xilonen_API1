@@ -1,12 +1,12 @@
 package launch
 
 import (
-	"holamundo/core"
-	sensorUsecase "holamundo/sensor/aplication/usecase"
-	sensorRepo "holamundo/sensor/domain/repository"
-	sensorControllers "holamundo/sensor/infraestructure/controllers"
-	sensorRoutes "holamundo/sensor/infraestructure/routes"
-	"holamundo/sensor/infraestructure/messaging"
+	"Xilonen-1/core"
+	sensorUsecase "Xilonen-1/sensor/aplication/usecase"
+	sensorRepo "Xilonen-1/sensor/domain/repository"
+	sensorControllers "Xilonen-1/sensor/infraestructure/controllers"
+	sensorRoutes "Xilonen-1/sensor/infraestructure/routes"
+	"Xilonen-1/sensor/infraestructure/messaging"
 
 	"github.com/gin-gonic/gin"
 )
