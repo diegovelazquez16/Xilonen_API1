@@ -1,0 +1,46 @@
+name: Xilonen Actions
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *' 
+
+jobs:
+  go-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.5'   
+
+      - name: Verify Go version
+        run: go version
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test ./... -v
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: v1.56.2
+
+      - name: Build the project
+        run: go build -v ./...
+
+      - name: List files in the repository
+        run: ls -la
+
+      - name: Show latest commits
+        run: git log -5 --oneline
+
+      - name: Show all contributors
+        run: git shortlog -s -n
