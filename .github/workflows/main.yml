@@ -32,7 +32,6 @@ jobs:
         uses: golangci/golangci-lint-action@v4
         with:
           version: v1.56.2
-        continue-on-error: true  
 
       - name: Build the project
         run: go build -v ./...
