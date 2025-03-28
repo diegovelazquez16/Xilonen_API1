@@ -9,6 +9,6 @@ import (
 type ObtenerSensorHumedadUseCase struct {
 	SensorRepo repository.ISensorHumedadRepository
 }
-func (uc *ObtenerSensorHumedadUseCase) ObtenerDatosSensores() ([]models.SensorLM393, error) {
+func (uc *ObtenerSensorHumedadUseCase) ObtenerDatosSensoresHumedad() ([]models.SensorLM393, error) { 
 	return uc.SensorRepo.ObtenerTodos()
 }

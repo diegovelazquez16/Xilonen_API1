@@ -11,7 +11,7 @@ type ObtenerSensorHumedadController struct {
 }
 
 func (sc *ObtenerSensorHumedadController) ObtenerDatos(ctx *gin.Context) {
-	sensoresHumedad, err := sc.ObtenerSensorHumedadUC.ObtenerDatosSensores()
+	sensoresHumedad, err := sc.ObtenerSensorHumedadUC.ObtenerDatosSensoresHumedad()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener datos"})
 		return

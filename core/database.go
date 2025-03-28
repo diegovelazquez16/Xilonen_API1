@@ -1,3 +1,4 @@
+// core/database.go 
 package core
 
 import (
@@ -5,11 +6,10 @@ import (
 	"log"
 	"os"
 
-
-
 	sensorModels "Xilonen-1/sensor/domain/models"
 	sensorHumedadModels "Xilonen-1/humedadSuelo/domain/models"
-
+	sensorNivelAguaModels "Xilonen-1/nivelAgua/domain/models"
+	sensorUVModels "Xilonen-1/sensorUV/domain/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -34,7 +34,7 @@ func DatabaseConnection() {
 
 	DB = db
 	log.Println("Conexión a la base de datos exitosa.")
-	err = DB.AutoMigrate(&sensorModels.SensorMQ135{}, &sensorHumedadModels.SensorLM393{})
+	err = DB.AutoMigrate(&sensorModels.SensorMQ135{}, &sensorHumedadModels.SensorLM393{}, &sensorNivelAguaModels.SensorT1592{}, &sensorUVModels.SensorUV{})
 	if err != nil {
 		log.Fatalf("Error aplicando migración: %v", err)
 	}
