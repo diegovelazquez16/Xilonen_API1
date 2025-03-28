@@ -9,7 +9,7 @@ import (
 
 
 
-func RegisterRoutes(router *gin.Engine, sensorAirePublisher * messaging.SensorPublisher) {
+func RegisterRoutes(router *gin.Engine, sensorAirePublisher * messaging.SensorConsumer) {
 
 	RegisterSensorModule(router, sensorAirePublisher)
 	RegisterSensorHumedadModule(router)

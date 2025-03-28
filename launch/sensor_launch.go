@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterSensorModule(router *gin.Engine, sensorPublisher *messaging.SensorPublisher) {
+func RegisterSensorModule(router *gin.Engine, sensorPublisher *messaging.SensorConsumer) {
 	sensorRepo := &sensorRepo.SensorRepositoryImpl{DB: core.GetDB()}
 
 	guardarSensorUC := &sensorUsecase.GuardarSensorUseCase{SensorRepo: sensorRepo}

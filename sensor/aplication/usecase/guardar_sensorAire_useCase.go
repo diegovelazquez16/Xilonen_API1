@@ -10,9 +10,10 @@ type GuardarSensorUseCase struct {
 	SensorRepo repository.ISensorRepository
 }
 
-func (uc *GuardarSensorUseCase) GuardarDatosSensor(valor float64) error {
+func (uc *GuardarSensorUseCase) GuardarDatosSensor(valor float64, categoria string) error {
 	sensor := models.SensorMQ135{
 		Valor:       valor,
+		Categoria: categoria,
 		FechaHora: time.Now(),
 	}
 
