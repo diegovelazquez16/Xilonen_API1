@@ -10,9 +10,10 @@ type GuardarSensorHumedadUseCase struct {
 	SensorRepo repository.ISensorHumedadRepository
 }
 
-func (uc *GuardarSensorHumedadUseCase) GuardarDatosSensorHumedad(valor float64) error {
+func (uc *GuardarSensorHumedadUseCase) GuardarDatosSensorHumedad(valor float64, categoria string) error {
 	sensorHumedad := models.SensorLM393{
 		ValorHumedad:       valor,
+		Categoria: categoria,
 		FechaHora: time.Now(),
 	}
 

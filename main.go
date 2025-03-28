@@ -4,9 +4,10 @@ import (
 	"log"
 	"Xilonen-1/core"
 	"Xilonen-1/launch"
-	"Xilonen-1/sensor/aplication/usecase"
-	"Xilonen-1/sensor/domain/repository"
+
 	"Xilonen-1/sensor/infraestructure/messaging"
+	sensorHumedadMessaging "Xilonen-1/humedadSuelo/infraestructure/messaging"
+
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -15,23 +16,23 @@ import (
 func main() {
 	core.InitializeApp()
 
-	// 🔹 Crear repositorio y caso de uso para sensores
-	sensorRepo := &repository.SensorRepositoryImpl{DB: core.GetDB()}
-	guardarSensorUC := &usecase.GuardarSensorUseCase{SensorRepo: sensorRepo}
-
-
-
-	// 🔹 Inicializar el consumidor de sensores
-	sensorConsumer, err := messaging.NewSensorConsumer(guardarSensorUC)
+	// Inicializar el consumidor de aire
+	sensorAireConsumer, err := messaging.NewSensorConsumer(nil)
 	if err != nil {
-		log.Fatalf("❌ Error al iniciar el consumidor de sensores: %v", err)
+		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Aire: %v", err)
 	}
-	defer sensorConsumer.Close()
-	
-	// Ejecutar el consumidor en un goroutine
-	go sensorConsumer.Start()
 
-	// 🔹 Configurar API con Gin
+	sensorHumedadConsumer, err := sensorHumedadMessaging.NewSensorHumedadConsumer(nil)
+	if err != nil {
+		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Humedad: %v", err)
+	}
+
+
+
+
+
+
+
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:8081", "http://localhost:4200"},
@@ -40,8 +41,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	// 🔹 Registrar rutas con el publicador de sensores
-	launch.RegisterRoutes(app, sensorConsumer)
+	launch.RegisterRoutes(app, sensorAireConsumer, sensorHumedadConsumer)
 
 	log.Println("🚀 API corriendo en http://localhost:8080")
 	if err := app.Run(":8080"); err != nil {

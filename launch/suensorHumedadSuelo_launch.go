@@ -1,6 +1,8 @@
 package launch
 
 import (
+
+	"log"
 	"Xilonen-1/core"
 
 //sensor de humedad:
@@ -8,10 +10,12 @@ import (
 	sensorHumedadRepo "Xilonen-1/humedadSuelo/domain/repository"
 	sensorHumedadControllers "Xilonen-1/humedadSuelo/infraestructure/controllers"
 	sensorHumedadRoutes "Xilonen-1/humedadSuelo/infraestructure/routes"
+	sensorHumedadMessaging "Xilonen-1/humedadSuelo/infraestructure/messaging"
+
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterSensorHumedadModule(router *gin.Engine) {
+func RegisterSensorHumedadModule(router *gin.Engine, sensorHumedadConsumer *sensorHumedadMessaging.SensorHumedadConsumer) {
 	sensorRepo := &sensorHumedadRepo.SensorHumedadRepositoryImpl{DB: core.GetDB()}
 
 	guardarSensorHumedadUC := &sensorHumedadUsecase.GuardarSensorHumedadUseCase{SensorRepo: sensorRepo}
@@ -21,4 +25,10 @@ func RegisterSensorHumedadModule(router *gin.Engine) {
 	obtenerSensoresHumedadController := &sensorHumedadControllers.ObtenerSensorHumedadController{ObtenerSensorHumedadUC: obtenerSensoresHumedadUC}
 
 	sensorHumedadRoutes.SensorHumedadRoutes(router, guardarSensorHumedadController,obtenerSensoresHumedadController )
+
+	humedadConsumer, err := sensorHumedadMessaging.NewSensorHumedadConsumer(guardarSensorHumedadUC)
+	if err != nil {
+		log.Fatalf("❌ Error al conectar con RabbitMQ para Humedad Suelo: %v", err)
+	}
+	go humedadConsumer.Start()
 }
