@@ -52,11 +52,12 @@ func (c *SensorHumedadConsumer) Start() {
 			}
 
 			// Guardar el dato procesado en la BD usando el caso de uso
-			err := c.guardarSensorUC.GuardarDatosSensorHumedad( sensorData.ValorHumedad, sensorData.Categoria)
+			err := c.guardarSensorUC.GuardarDatosSensorHumedad( sensorData.ID, sensorData.ValorHumedad, sensorData.Categoria)
 			if err != nil {
 				log.Printf("❌ Error al guardar el dato en la BD: %v", err)
 			} else {
-				log.Printf("✅ Dato guardado en BD: ID=%d, Valor=%.2f, %FechaHora=%s", sensorData.ID, sensorData.ValorHumedad, sensorData.FechaHora)
+				log.Printf("✅ Dato guardado en BD: ID=%d, Valor=%.2f, FechaHora=%s",
+					sensorData.ID, sensorData.ValorHumedad, sensorData.FechaHora)
 			}
 		}
 	}()
