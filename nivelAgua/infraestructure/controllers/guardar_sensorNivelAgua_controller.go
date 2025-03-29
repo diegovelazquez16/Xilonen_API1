@@ -13,7 +13,7 @@ type GuardarNivelAguaController struct {
 func (sc *GuardarNivelAguaController) GuardarDatos(ctx *gin.Context) {
 	var datos struct {
 		NivelAgua     float64 `json:"nivel_agua"`
-
+		Categoria string  `json:"categoria"`  
 	}
 
 	if err := ctx.ShouldBindJSON(&datos); err != nil {
@@ -21,7 +21,7 @@ func (sc *GuardarNivelAguaController) GuardarDatos(ctx *gin.Context) {
 		return
 	}
 
-	if err := sc.GuardarNivelAguaUC.GuardarDatosNivelAgua(datos.NivelAgua); err != nil {
+	if err := sc.GuardarNivelAguaUC.GuardarDatosNivelAgua(datos.NivelAgua, datos.Categoria); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar datos"})
 		return
 	}
