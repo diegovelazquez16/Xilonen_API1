@@ -3,6 +3,7 @@ package messaging
 import (
 	"encoding/json"
 	"log"
+	"os"
 
 	"Xilonen-1/sensor/aplication/usecase"
 	"Xilonen-1/sensor/domain/models"
@@ -10,16 +11,20 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-// SensorConsumer estructura para manejar la conexión con RabbitMQ
 type SensorConsumer struct {
 	guardarSensorUC *usecase.GuardarSensorUseCase
 	conn            *amqp.Connection
 	channel         *amqp.Channel
 }
 
-// NewSensorConsumer crea un nuevo consumidor de la cola "aire.procesado"
 func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase) (*SensorConsumer, error) {
-	conn, err := amqp.Dial("amqp://dvelazquez:laconia@54.163.6.194:5672/")
+
+	rabbitURL := os.Getenv("RABBITMQ_URL") //NO olvidar cargar variables de entorno
+	if rabbitURL == "" {
+		log.Fatal("❌ ERROR: RABBITMQ_URL no está configurada en el entorno")
+	}
+
+	conn, err := amqp.Dial(rabbitURL)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +42,7 @@ func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase) (*SensorCo
 	}, nil
 }
 
-// Start inicia el consumidor y escucha mensajes de la cola "aire.procesado"
+// Start sirve para iniciar el consumidor y escucha mensajes de la cola "aire.procesado"
 func (c *SensorConsumer) Start() {
 	msgs, err := c.channel.Consume(
 		"aire.procesado", "", true, false, false, false, nil,
@@ -54,7 +59,6 @@ func (c *SensorConsumer) Start() {
 				continue
 			}
 
-			// Guardar el dato procesado en la BD usando el caso de uso
 			err := c.guardarSensorUC.GuardarDatosSensor(sensorData.Valor, sensorData.Categoria)
 			if err != nil {
 				log.Printf("❌ Error al guardar el dato en la BD: %v", err)
@@ -67,7 +71,6 @@ func (c *SensorConsumer) Start() {
 	log.Println("📡 Esperando datos de la cola 'aire.procesado'...")
 }
 
-// Close cierra la conexión y el canal de RabbitMQ
 func (c *SensorConsumer) Close() {
 	c.channel.Close()
 	c.conn.Close()
