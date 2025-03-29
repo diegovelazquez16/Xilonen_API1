@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"holamundo/sensor/domain/models"
+	"Xilonen-1/sensor/domain/models"
 	"gorm.io/gorm"
 )
 

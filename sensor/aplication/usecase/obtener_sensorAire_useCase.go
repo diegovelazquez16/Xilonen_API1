@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"holamundo/sensor/domain/models"
-	"holamundo/sensor/domain/repository"
+	"Xilonen-1/sensor/domain/models"
+	"Xilonen-1/sensor/domain/repository"
 )
 
 

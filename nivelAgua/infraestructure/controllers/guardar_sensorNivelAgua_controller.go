@@ -2,18 +2,17 @@ package controllers
 
 import (
 	"net/http"
-	"Xilonen-1/sensor/aplication/usecase"
+	"Xilonen-1/nivelAgua/aplication/usecase"
 	"github.com/gin-gonic/gin"
 )
 
-type GuardarSensorController struct {
-	GuardarSensorUC *usecase.GuardarSensorUseCase
+type GuardarNivelAguaController struct {
+	GuardarNivelAguaUC *usecase.GuardarNivelAguaUseCase
 }
 
-func (sc *GuardarSensorController) GuardarDatos(ctx *gin.Context) {
+func (sc *GuardarNivelAguaController) GuardarDatos(ctx *gin.Context) {
 	var datos struct {
-		Valor     float64 `json:"valor"`
-		Categoria string `json:"categoria"`
+		NivelAgua     float64 `json:"nivel_agua"`
 
 	}
 
@@ -22,7 +21,7 @@ func (sc *GuardarSensorController) GuardarDatos(ctx *gin.Context) {
 		return
 	}
 
-	if err := sc.GuardarSensorUC.GuardarDatosSensor(datos.Valor, datos.Categoria); err != nil {
+	if err := sc.GuardarNivelAguaUC.GuardarDatosNivelAgua(datos.NivelAgua); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar datos"})
 		return
 	}

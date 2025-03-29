@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"holamundo/sensor/infraestructure/controllers"
+	"Xilonen-1/sensor/infraestructure/controllers"
 	"github.com/gin-gonic/gin"
 )
 
