@@ -19,5 +19,6 @@ func RegisterRoutes(router *gin.Engine, sensorAirePublisher *messaging.SensorCon
 	RegisterSensorHumedadModule(router, sensorHumedadConsumer)
 	RegisterNivelAguaModule(router, sensorNivelAguaConsumer)
 	RegisterSensorUVModule(router, sensorUVConsumer)
+	RegisterUserModule(router)
 
 }
