@@ -8,6 +8,8 @@ import (
 	"Xilonen-1/sensor/infraestructure/messaging"
 	sensorHumedadMessaging "Xilonen-1/humedadSuelo/infraestructure/messaging"
 	sensorNivelAguaMessaging "Xilonen-1/nivelAgua/infraestructure/messaging"
+	sensorUVMessaging "Xilonen-1/sensorUV/infraestructure/messaging"
+
 
 
 
@@ -33,7 +35,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Humedad: %v", err)
 	}
-
+	sensorUVConsumer, err := sensorUVMessaging.NewSensorUVConsumer(nil)
+	if err != nil {
+		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Humedad: %v", err)
+	}
 
 
 
@@ -46,7 +51,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	launch.RegisterRoutes(app, sensorAireConsumer, sensorHumedadConsumer, sensorNivelAguaConsumer)
+	launch.RegisterRoutes(app, sensorAireConsumer, sensorHumedadConsumer, sensorNivelAguaConsumer, sensorUVConsumer)
 
 	log.Println("🚀 API corriendo en http://localhost:8080")
 	if err := app.Run(":8080"); err != nil {
