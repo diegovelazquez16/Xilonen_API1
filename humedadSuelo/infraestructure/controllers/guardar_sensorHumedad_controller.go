@@ -12,6 +12,7 @@ type GuardarSensorHumedadController struct {
 
 func (sc *GuardarSensorHumedadController) GuardarDatos(ctx *gin.Context) {
 	var datos struct {
+		ID 				uint 	`json:"id"`
 		ValorHumedad	float64 `json:"valor_humedad"`
 		Categoria	    string 	`json:"categoria"`
 	}
@@ -21,7 +22,7 @@ func (sc *GuardarSensorHumedadController) GuardarDatos(ctx *gin.Context) {
 		return
 	}
 
-	if err := sc.GuardarSensorHumedadUC.GuardarDatosSensorHumedad(datos.ValorHumedad, datos.Categoria); err != nil {
+	if err := sc.GuardarSensorHumedadUC.GuardarDatosSensorHumedad(datos.ID, datos.ValorHumedad, datos.Categoria); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar datos"})
 		return
 	}

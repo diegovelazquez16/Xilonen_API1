@@ -13,7 +13,7 @@ import (
 )
 
 func RegisterSensorModule(router *gin.Engine, sensorPublisher *sensorMessaging.SensorConsumer) {
-	sensorRepo := &sensorRepo.SensorRepositoryImpl{DB: core.GetDB()}
+	sensorRepo := &sensorRepo.SensorRepositoryImpl{DB: core.GetDB()} // Inicializar el repositorio correctamente
 
 	guardarSensorUC := &sensorUsecase.GuardarSensorUseCase{SensorRepo: sensorRepo}
 	obtenerSensoresUC := &sensorUsecase.ObtenerSensorUseCase{SensorRepo: sensorRepo}
@@ -21,11 +21,17 @@ func RegisterSensorModule(router *gin.Engine, sensorPublisher *sensorMessaging.S
 	guardarSensorController := &sensorControllers.GuardarSensorController{GuardarSensorUC: guardarSensorUC}
 	obtenerSensoreController := &sensorControllers.ObtenerSensorController{ObtenerSensorUC: obtenerSensoresUC}
 
-	sensorRoutes.SensorRoutes(router, guardarSensorController,obtenerSensoreController )
+	sensorRoutes.SensorRoutes(router, guardarSensorController, obtenerSensoreController)
 
-	sensorConsumer, err := sensorMessaging.NewSensorConsumer(&sensorUsecase.GuardarSensorUseCase{})
+	// ❌ ERROR AQUÍ (antes)
+	// sensorConsumer, err := sensorMessaging.NewSensorConsumer(&sensorUsecase.GuardarSensorUseCase{})
+
+	// ✅ SOLUCIÓN (usa la instancia ya inicializada)
+	sensorConsumer, err := sensorMessaging.NewSensorConsumer(guardarSensorUC)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para DHT11: %v", err)
 	}
+
 	go sensorConsumer.Start()
 }
+//ok 
