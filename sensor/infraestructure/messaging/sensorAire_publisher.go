@@ -4,24 +4,25 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-
 	"Xilonen-1/sensor/aplication/usecase"
 	"Xilonen-1/sensor/domain/models"
+	"Xilonen-1/sensor/infraestructure/websocket"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+// SensorConsumer maneja la conexión con RabbitMQ
 type SensorConsumer struct {
 	guardarSensorUC *usecase.GuardarSensorUseCase
 	conn            *amqp.Connection
 	channel         *amqp.Channel
+	wsServer        *websocket.WebSocketServer
 }
 
-func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase) (*SensorConsumer, error) {
-
-	rabbitURL := os.Getenv("RABBITMQ_URL") //NO olvidar cargar variables de entorno
+func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase, wsServer *websocket.WebSocketServer) (*SensorConsumer, error) {
+	rabbitURL := os.Getenv("RABBITMQ_URL")
 	if rabbitURL == "" {
-		log.Fatal("❌ ERROR: RABBITMQ_URL no está configurada en el entorno")
+		log.Fatal("❌ ERROR: RABBITMQ_URL no está configurada")
 	}
 
 	conn, err := amqp.Dial(rabbitURL)
@@ -39,10 +40,11 @@ func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase) (*SensorCo
 		guardarSensorUC: guardarSensorUC,
 		conn:            conn,
 		channel:         ch,
+		wsServer:        wsServer,
 	}, nil
 }
 
-// Start sirve para iniciar el consumidor y escucha mensajes de la cola "aire.procesado"
+// Start inicia el consumidor y escucha mensajes
 func (c *SensorConsumer) Start() {
 	msgs, err := c.channel.Consume(
 		"aire.procesado", "", true, false, false, false, nil,
@@ -55,23 +57,20 @@ func (c *SensorConsumer) Start() {
 		for msg := range msgs {
 			var sensorData models.SensorMQ135
 			if err := json.Unmarshal(msg.Body, &sensorData); err != nil {
-				log.Printf("⚠️ Error al deserializar el mensaje: %v", err)
+				log.Printf("⚠️ Error al deserializar: %v", err)
 				continue
 			}
 
 			err := c.guardarSensorUC.GuardarDatosSensor(sensorData.Valor, sensorData.Categoria)
 			if err != nil {
-				log.Printf("❌ Error al guardar el dato en la BD: %v", err)
-			} else {
-				log.Printf("✅ Dato guardado en BD: ID=%d, Valor=%.2f, FechaHora=%s", sensorData.ID, sensorData.Valor, sensorData.FechaHora)
+				log.Printf("❌ Error al guardar en BD: %v", err)
 			}
+
+			jsonData, _ := json.Marshal(sensorData)
+			c.wsServer.Broadcast <- jsonData
 		}
 	}()
 
-	log.Println("📡 Esperando datos de la cola 'aire.procesado'...")
+	log.Println("📡 Esperando datos de 'aire.procesado'...")
 }
-
-func (c *SensorConsumer) Close() {
-	c.channel.Close()
-	c.conn.Close()
-}
+//ok

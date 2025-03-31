@@ -9,6 +9,9 @@ import (
 	sensorHumedadMessaging "Xilonen-1/humedadSuelo/infraestructure/messaging"
 	sensorNivelAguaMessaging "Xilonen-1/nivelAgua/infraestructure/messaging"
 	sensorUVMessaging "Xilonen-1/sensorUV/infraestructure/messaging"
+	"Xilonen-1/sensor/infraestructure/websocket"
+
+	
 
 
 
@@ -20,8 +23,12 @@ import (
 func main() {
 	core.InitializeApp()
 
+	// 🆕 Inicializar WebSocketServer
+	wsServer := websocket.NewWebSocketServer()
+	go wsServer.HandleMessages()
+
 	// Inicializar el consumidor de aire
-	sensorAireConsumer, err := messaging.NewSensorConsumer(nil)
+	sensorAireConsumer, err := messaging.NewSensorConsumer(nil,wsServer)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Aire: %v", err)
 	}
@@ -45,13 +52,15 @@ func main() {
 
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:8081", "http://localhost:4200"},
+		AllowAllOrigins: true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
+		ExposeHeaders:    []string{"Upgrade"}, // 🆕 Permitir Upgrade para WebSocket
+
 	}))
 
-	launch.RegisterRoutes(app, sensorAireConsumer, sensorHumedadConsumer, sensorNivelAguaConsumer, sensorUVConsumer)
+	launch.RegisterRoutes(app, sensorAireConsumer, sensorHumedadConsumer, sensorNivelAguaConsumer, sensorUVConsumer, wsServer)
 
 	log.Println("🚀 API corriendo en http://localhost:8080")
 	if err := app.Run(":8080"); err != nil {
