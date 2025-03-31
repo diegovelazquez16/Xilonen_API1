@@ -13,6 +13,8 @@ type GuardarSensorUVController struct {
 func (sc *GuardarSensorUVController) GuardarDatos(ctx *gin.Context) {
 	var datos struct {
 		ValorUV     float64 `json:"valor_uv"`//OJO
+		Categoria string  `json:"categoria"`  
+
 
 	}
 
@@ -21,7 +23,7 @@ func (sc *GuardarSensorUVController) GuardarDatos(ctx *gin.Context) {
 		return
 	}
 
-	if err := sc.GuardarSensorUVUC.GuardarDatosSensorUV(datos.ValorUV); err != nil {
+	if err := sc.GuardarSensorUVUC.GuardarDatosSensorUV(datos.ValorUV, datos.Categoria); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar datos"})
 		return
 	}
