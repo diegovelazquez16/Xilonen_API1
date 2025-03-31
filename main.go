@@ -25,7 +25,6 @@ func main() {
 
 	// 🆕 Inicializar WebSocketServer
 	wsServer := websocket.NewWebSocketServer()
-	go wsServer.HandleMessages()
 
 	// Inicializar el consumidor de aire
 	sensorAireConsumer, err := messaging.NewSensorConsumer(nil,wsServer)

@@ -16,7 +16,6 @@ func StartServer() {
 	router := gin.Default()
 
 	wsServer := websocket.NewWebSocketServer()
-	go wsServer.HandleMessages()
 
 	router.GET("/ws", func(c *gin.Context) {
 		wsServer.HandleConnections(c.Writer, c.Request)

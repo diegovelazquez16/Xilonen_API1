@@ -25,15 +25,11 @@ func RegisterSensorModule(router *gin.Engine, sensorPublisher *sensorMessaging.S
 
 	sensorRoutes.SensorRoutes(router, guardarSensorController, obtenerSensoreController)
 
-	// ❌ ERROR AQUÍ (antes)
-	// sensorConsumer, err := sensorMessaging.NewSensorConsumer(&sensorUsecase.GuardarSensorUseCase{})
-
-	// ✅ SOLUCIÓN (usa la instancia ya inicializada)
 	sensorConsumer, err := sensorMessaging.NewSensorConsumer(guardarSensorUC,wsServer)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para DHT11: %v", err)
 	}
 
-	go sensorConsumer.Start()
+	go sensorConsumer.Start(wsServer)
 }
 //ok 

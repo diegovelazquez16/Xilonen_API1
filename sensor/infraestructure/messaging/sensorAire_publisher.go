@@ -44,8 +44,7 @@ func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase, wsServer *
 	}, nil
 }
 
-// Start inicia el consumidor y escucha mensajes
-func (c *SensorConsumer) Start() {
+func (c *SensorConsumer) Start(wsServer *websocket.WebSocketServer) {
 	msgs, err := c.channel.Consume(
 		"aire.procesado", "", true, false, false, false, nil,
 	)
@@ -57,20 +56,22 @@ func (c *SensorConsumer) Start() {
 		for msg := range msgs {
 			var sensorData models.SensorMQ135
 			if err := json.Unmarshal(msg.Body, &sensorData); err != nil {
-				log.Printf("⚠️ Error al deserializar: %v", err)
+				log.Printf("⚠️ Error al deserializar el mensaje: %v", err)
 				continue
 			}
 
 			err := c.guardarSensorUC.GuardarDatosSensor(sensorData.Valor, sensorData.Categoria)
 			if err != nil {
-				log.Printf("❌ Error al guardar en BD: %v", err)
-			}
+				log.Printf("❌ Error al guardar el dato en la BD: %v", err)
+			} else {
+				log.Printf("✅ Dato guardado en BD: ID=%d, Valor=%.2f, FechaHora=%s",
+					sensorData.ID, sensorData.Valor, sensorData.FechaHora)
 
-			jsonData, _ := json.Marshal(sensorData)
-			c.wsServer.Broadcast <- jsonData
+				wsServer.SendSensorData(sensorData)
+			}
 		}
 	}()
-
-	log.Println("📡 Esperando datos de 'aire.procesado'...")
+	log.Println("📡 Esperando datos de la cola 'aire.procesado'...")
 }
+
 //ok
