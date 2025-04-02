@@ -1,8 +1,9 @@
 package usecase
 
 import (
-	"holamundo/sensor/domain/models"
-	"holamundo/sensor/domain/repository"
+	"errors"
+	"Xilonen-1/sensor/domain/models"
+	"Xilonen-1/sensor/domain/repository"
 	"time"
 )
 
@@ -10,13 +11,14 @@ type GuardarSensorUseCase struct {
 	SensorRepo repository.ISensorRepository
 }
 
-func (uc *GuardarSensorUseCase) GuardarDatosSensor(co2, nh3, alcohol, tolueno, acetona float64) error {
+func (uc *GuardarSensorUseCase) GuardarDatosSensor(valor float64, categoria string) error {
+	if uc.SensorRepo == nil {
+		return errors.New("❌ Error: SensorRepo no ha sido inicializado")
+	}
+
 	sensor := models.SensorMQ135{
-		CO2:       co2,
-		NH3:       nh3,
-		Alcohol:   alcohol,
-		Tolueno:   tolueno,
-		Acetona:   acetona,
+		Valor:     valor,
+		Categoria: categoria,
 		FechaHora: time.Now(),
 	}
 

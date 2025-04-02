@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"net/http"
-	"holamundo/sensor/aplication/usecase"
+	"Xilonen-1/sensor/aplication/usecase"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,11 +12,9 @@ type GuardarSensorController struct {
 
 func (sc *GuardarSensorController) GuardarDatos(ctx *gin.Context) {
 	var datos struct {
-		CO2     float64 `json:"co2"`
-		NH3     float64 `json:"nh3"`
-		Alcohol float64 `json:"alcohol"`
-		Tolueno float64 `json:"tolueno"`
-		Acetona float64 `json:"acetona"`
+		Valor     float64 `json:"valor"`
+		Categoria string `json:"categoria"`
+
 	}
 
 	if err := ctx.ShouldBindJSON(&datos); err != nil {
@@ -24,7 +22,7 @@ func (sc *GuardarSensorController) GuardarDatos(ctx *gin.Context) {
 		return
 	}
 
-	if err := sc.GuardarSensorUC.GuardarDatosSensor(datos.CO2, datos.NH3, datos.Alcohol, datos.Tolueno, datos.Acetona); err != nil {
+	if err := sc.GuardarSensorUC.GuardarDatosSensor(datos.Valor, datos.Categoria); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar datos"})
 		return
 	}

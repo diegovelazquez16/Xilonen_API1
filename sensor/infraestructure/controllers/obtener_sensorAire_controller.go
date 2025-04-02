@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"net/http"
-	"holamundo/sensor/aplication/usecase"
+	"Xilonen-1/sensor/aplication/usecase"
 	"github.com/gin-gonic/gin"
 )
 
