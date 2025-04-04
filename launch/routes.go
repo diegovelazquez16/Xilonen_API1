@@ -23,7 +23,7 @@ func RegisterRoutes(
 ) {
 
 	router.GET("/ws", func(c *gin.Context) {
-		wsServer.HandleConnections(c.Writer, c.Request)
+		wsServer.HandleConnection(c.Writer, c.Request)
 	})
 	RegisterSensorModule(router, sensorAirePublisher, wsServer)
 	RegisterSensorHumedadModule(router, sensorHumedadConsumer)

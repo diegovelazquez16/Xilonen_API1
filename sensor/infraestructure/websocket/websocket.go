@@ -4,67 +4,89 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
+
 	"github.com/gorilla/websocket"
-	"Xilonen-1/sensor/domain/models"
 )
 
-// Configuración de WebSocket
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
-}
-
+// WebSocketServer maneja todas las conexiones WebSocket
 type WebSocketServer struct {
-	Clients map[*websocket.Conn]bool
+	clients  map[*websocket.Conn]bool
+	mu       sync.Mutex
+	upgrader websocket.Upgrader
 }
 
-// Crear un nuevo servidor WebSocket
+// NewWebSocketServer crea una nueva instancia del servidor WebSocket
 func NewWebSocketServer() *WebSocketServer {
 	return &WebSocketServer{
-		Clients: make(map[*websocket.Conn]bool),
+		clients: make(map[*websocket.Conn]bool),
+		upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true // Permitir conexiones desde cualquier origen
+			},
+		},
 	}
 }
 
-// Manejar nuevas conexiones WebSocket
-func (ws *WebSocketServer) HandleConnections(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
+// HandleConnection maneja nuevas conexiones WebSocket
+func (ws *WebSocketServer) HandleConnection(w http.ResponseWriter, r *http.Request) {
+	conn, err := ws.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("❌ Error al actualizar la conexión a WebSocket:", err)
 		return
 	}
-	defer conn.Close()
 
-	ws.Clients[conn] = true
+	ws.mu.Lock()
+	ws.clients[conn] = true
+	ws.mu.Unlock()
 	log.Println("✅ Nueva conexión WebSocket establecida.")
 
-	// Mantener la conexión abierta hasta que el cliente se desconecte
-	for {
-		_, _, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("🔌 Cliente WebSocket desconectado.")
-			delete(ws.Clients, conn)
+	// Manejar cierre de conexión
+	go func() {
+		defer func() {
+			ws.mu.Lock()
+			delete(ws.clients, conn)
+			ws.mu.Unlock()
 			conn.Close()
-			break
+			log.Println("⚠️ Conexión WebSocket cerrada.")
+		}()
+
+		for {
+			_, _, err := conn.ReadMessage()
+			if err != nil {
+				break
+			}
 		}
-	}
+	}()
 }
 
-
-// Enviar datos del sensor a todos los clientes conectados
-func (ws *WebSocketServer) SendSensorData(sensor models.SensorMQ135) {
-	data, err := json.Marshal(sensor)
-	if err != nil {
-		log.Println("❌ Error al serializar datos del sensor:", err)
+// BroadcastMessage envía datos a todos los clientes conectados
+func (ws *WebSocketServer) BroadcastMessage(sensorType string, data interface{}) {
+	// Convertir el mensaje a un mapa genérico
+	msgMap, ok := data.(map[string]interface{})
+	if !ok {
+		log.Println("❌ Error: los datos enviados no son un mapa válido")
 		return
 	}
 
-	log.Println("📡 Enviando datos al WebSocket:", string(data)) 
+	// Agregar el tipo de sensor al mensaje
+	msgMap["tipo"] = sensorType
 
-	for client := range ws.Clients {
-		if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
-			log.Println("⚠️ Error al enviar mensaje a cliente WebSocket:", err)
+	// Serializar a JSON
+	message, err := json.Marshal(msgMap)
+	if err != nil {
+		log.Println("❌ Error al serializar mensaje:", err)
+		return
+	}
+
+	// Enviar mensaje a cada cliente conectado
+	ws.mu.Lock()
+	defer ws.mu.Unlock()
+	for client := range ws.clients {
+		if err := client.WriteMessage(websocket.TextMessage, message); err != nil {
+			log.Println("❌ Error al enviar mensaje a cliente WebSocket:", err)
 			client.Close()
-			delete(ws.Clients, client)
+			delete(ws.clients, client)
 		}
 	}
 }
-
