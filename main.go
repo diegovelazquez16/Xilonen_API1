@@ -11,6 +11,7 @@ import (
 	sensorUVMessaging "Xilonen-1/sensorUV/infraestructure/messaging"
 	sensorTemperaturaMessaging "Xilonen-1/sensorTemperatura/infraestructure/messaging"
 	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/simulator" // Importamos el simulador
 
 	
 
@@ -51,6 +52,7 @@ func main() {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Temperatura: %v", err)
 	}
 
+	go simulator.SimulateSensorData(wsServer)
 
 
 	app := gin.Default()
