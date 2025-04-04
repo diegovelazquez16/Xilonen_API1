@@ -8,11 +8,13 @@ import (
 	sensorControllers "Xilonen-1/sensor/infraestructure/controllers"
 	sensorRoutes "Xilonen-1/sensor/infraestructure/routes"
 	sensorMessaging "Xilonen-1/sensor/infraestructure/messaging"
+	"Xilonen-1/sensor/infraestructure/websocket"
+
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterSensorModule(router *gin.Engine, sensorPublisher *sensorMessaging.SensorConsumer) {
+func RegisterSensorModule(router *gin.Engine, sensorPublisher *sensorMessaging.SensorConsumer, wsServer *websocket.WebSocketServer) {
 	sensorRepo := &sensorRepo.SensorRepositoryImpl{DB: core.GetDB()} // Inicializar el repositorio correctamente
 
 	guardarSensorUC := &sensorUsecase.GuardarSensorUseCase{SensorRepo: sensorRepo}
@@ -23,11 +25,7 @@ func RegisterSensorModule(router *gin.Engine, sensorPublisher *sensorMessaging.S
 
 	sensorRoutes.SensorRoutes(router, guardarSensorController, obtenerSensoreController)
 
-	// ❌ ERROR AQUÍ (antes)
-	// sensorConsumer, err := sensorMessaging.NewSensorConsumer(&sensorUsecase.GuardarSensorUseCase{})
-
-	// ✅ SOLUCIÓN (usa la instancia ya inicializada)
-	sensorConsumer, err := sensorMessaging.NewSensorConsumer(guardarSensorUC)
+	sensorConsumer, err := sensorMessaging.NewSensorConsumer(guardarSensorUC,wsServer)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para DHT11: %v", err)
 	}

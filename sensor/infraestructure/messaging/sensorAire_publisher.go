@@ -3,28 +3,23 @@ package messaging
 import (
 	"encoding/json"
 	"log"
-	"os"
-
-	"Xilonen-1/sensor/aplication/usecase"
 	"Xilonen-1/sensor/domain/models"
+	"Xilonen-1/sensor/aplication/usecase"
+	"Xilonen-1/sensor/infraestructure/websocket"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type SensorConsumer struct {
 	guardarSensorUC *usecase.GuardarSensorUseCase
+	wsServer        *websocket.WebSocketServer
 	conn            *amqp.Connection
 	channel         *amqp.Channel
 }
 
-func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase) (*SensorConsumer, error) {
-
-	rabbitURL := os.Getenv("RABBITMQ_URL") //NO olvidar cargar variables de entorno
-	if rabbitURL == "" {
-		log.Fatal("❌ ERROR: RABBITMQ_URL no está configurada en el entorno")
-	}
-
-	conn, err := amqp.Dial(rabbitURL)
+// NewSensorConsumer crea un consumidor con WebSocket
+func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase, wsServer *websocket.WebSocketServer) (*SensorConsumer, error) {
+	conn, err := amqp.Dial("amqp://dvelazquez:laconia@54.163.6.194:5672/")
 	if err != nil {
 		return nil, err
 	}
@@ -37,16 +32,15 @@ func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase) (*SensorCo
 
 	return &SensorConsumer{
 		guardarSensorUC: guardarSensorUC,
+		wsServer:        wsServer,
 		conn:            conn,
 		channel:         ch,
 	}, nil
 }
 
-// Start sirve para iniciar el consumidor y escucha mensajes de la cola "aire.procesado"
+// Start inicia el consumidor y envía datos al WebSocket
 func (c *SensorConsumer) Start() {
-	msgs, err := c.channel.Consume(
-		"aire.procesado", "", true, false, false, false, nil,
-	)
+	msgs, err := c.channel.Consume("aire.procesado", "", true, false, false, false, nil)
 	if err != nil {
 		log.Fatalf("❌ Error al consumir mensajes: %v", err)
 	}
@@ -59,19 +53,28 @@ func (c *SensorConsumer) Start() {
 				continue
 			}
 
+			// Guardar en BD
 			err := c.guardarSensorUC.GuardarDatosSensor(sensorData.Valor, sensorData.Categoria)
 			if err != nil {
-				log.Printf("❌ Error al guardar el dato en la BD: %v", err)
+				log.Printf("❌ Error al guardar en la BD: %v", err)
 			} else {
-				log.Printf("✅ Dato guardado en BD: ID=%d, Valor=%.2f, FechaHora=%s", sensorData.ID, sensorData.Valor, sensorData.FechaHora)
+				log.Printf("✅ Dato guardado: ID=%d, Valor=%.2f", sensorData.ID, sensorData.Valor)
+				message := map[string]interface{}{
+					"id":         sensorData.ID,
+					"valor":      sensorData.Valor,
+					"categoria":  sensorData.Categoria,
+					"fecha_hora": sensorData.FechaHora,
+					"tipo":       "MQ135", // Identifica el sensor de calidad de aire
+				}
+				// Enviar al WebSocket
+				c.wsServer.BroadcastMessage("MQ135", message)
 			}
 		}
 	}()
-
-	log.Println("📡 Esperando datos de la cola 'aire.procesado'...")
 }
 
 func (c *SensorConsumer) Close() {
 	c.channel.Close()
 	c.conn.Close()
 }
+//ok?
