@@ -7,4 +7,5 @@ type SensorLM393 struct {
 	ValorHumedad     float64   `json:"valor_humedad"`
 	Categoria string  `json:"categoria"`       
 	FechaHora time.Time `json:"fecha_hora"` 
+	Tipo string `json:"tipo"`
 }

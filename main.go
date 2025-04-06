@@ -33,12 +33,12 @@ func main() {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Aire: %v", err)
 	}
 
-	sensorHumedadConsumer, err := sensorHumedadMessaging.NewSensorHumedadConsumer(nil)
+	sensorHumedadConsumer, err := sensorHumedadMessaging.NewSensorHumedadConsumer(nil, wsServer)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Humedad: %v", err)
 	}
 
-	sensorNivelAguaConsumer, err := sensorNivelAguaMessaging.NewSensorNivelAguaConsumer(nil)
+	sensorNivelAguaConsumer, err := sensorNivelAguaMessaging.NewSensorNivelAguaConsumer(nil,wsServer)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Humedad: %v", err)
 	}
@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Humedad: %v", err)
 	}
-	sensorTemperaturaConsumer, err := sensorTemperaturaMessaging.NewSensorTemperaturaConsumer(nil)
+	sensorTemperaturaConsumer, err := sensorTemperaturaMessaging.NewSensorTemperaturaConsumer(nil,wsServer)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Temperatura: %v", err)
 	}

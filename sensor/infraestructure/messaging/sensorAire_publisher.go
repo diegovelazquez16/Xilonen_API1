@@ -54,7 +54,7 @@ func (c *SensorConsumer) Start() {
 			}
 
 			// Guardar en BD
-			err := c.guardarSensorUC.GuardarDatosSensor(sensorData.Valor, sensorData.Categoria)
+			err := c.guardarSensorUC.GuardarDatosSensor(sensorData.Valor, sensorData.Categoria, sensorData.Tipo)
 			if err != nil {
 				log.Printf("❌ Error al guardar en la BD: %v", err)
 			} else {

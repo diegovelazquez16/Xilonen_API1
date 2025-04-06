@@ -7,4 +7,5 @@ type SensorT1592 struct {
 	NivelAgua     float64   `json:"nivel_agua"`  
 	Categoria string  `json:"categoria"`       
 	FechaHora time.Time `json:"fecha_hora"` 
+	Tipo string `json:"tipo"`
 }

@@ -11,11 +11,13 @@ import (
 	nivelAguaControllers "Xilonen-1/nivelAgua/infraestructure/controllers"
 	nivelAguaRoutes "Xilonen-1/nivelAgua/infraestructure/routes"
 	sensorNivelAguaMessaging "Xilonen-1/nivelAgua/infraestructure/messaging"
+	"Xilonen-1/sensor/infraestructure/websocket"
+
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterNivelAguaModule(router *gin.Engine, sensorNivelAguaConsumer * sensorNivelAguaMessaging.SensorNivelAguaConsumer) {
+func RegisterNivelAguaModule(router *gin.Engine, sensorNivelAguaConsumer * sensorNivelAguaMessaging.SensorNivelAguaConsumer, wsServer *websocket.WebSocketServer) {
 	nivelAguaRepo := &nivelAguaRepo.NivelAguaRepositoryImpl{DB: core.GetDB()}
 
 	guardarNivelAguaUC := &nivelAguaUsecase.GuardarNivelAguaUseCase{NivelAguaRepo: nivelAguaRepo}
@@ -26,7 +28,7 @@ func RegisterNivelAguaModule(router *gin.Engine, sensorNivelAguaConsumer * senso
 
 	nivelAguaRoutes.NivelAguaRoutes(router, guardarNivelAguaController,obtenerNivelAguaController )
 	
-	nivelAguaConsumer, err := sensorNivelAguaMessaging.NewSensorNivelAguaConsumer(guardarNivelAguaUC)
+	nivelAguaConsumer, err := sensorNivelAguaMessaging.NewSensorNivelAguaConsumer(guardarNivelAguaUC, wsServer)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor T1592: %v", err)
 	}

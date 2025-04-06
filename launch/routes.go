@@ -26,9 +26,9 @@ func RegisterRoutes(
 		wsServer.HandleConnection(c.Writer, c.Request)
 	})
 	RegisterSensorModule(router, sensorAirePublisher, wsServer)
-	RegisterSensorHumedadModule(router, sensorHumedadConsumer)
-	RegisterNivelAguaModule(router, sensorNivelAguaConsumer)
+	RegisterSensorHumedadModule(router, sensorHumedadConsumer, wsServer)
+	RegisterNivelAguaModule(router, sensorNivelAguaConsumer, wsServer)
 	RegisterSensorUVModule(router, sensorUVConsumer)
 	RegisterUserModule(router)
-	RegisterSensorTemperaturaModule(router, SensorTemperaturaConsumer)
+	RegisterSensorTemperaturaModule(router, SensorTemperaturaConsumer, wsServer)
 }
