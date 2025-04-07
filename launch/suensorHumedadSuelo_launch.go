@@ -11,7 +11,8 @@ import (
 	sensorHumedadControllers "Xilonen-1/humedadSuelo/infraestructure/controllers"
 	sensorHumedadRoutes "Xilonen-1/humedadSuelo/infraestructure/routes"
 	sensorHumedadMessaging "Xilonen-1/humedadSuelo/infraestructure/messaging"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
+
 
 	"github.com/gin-gonic/gin"
 )

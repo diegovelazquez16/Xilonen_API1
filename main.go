@@ -10,7 +10,7 @@ import (
 	sensorNivelAguaMessaging "Xilonen-1/nivelAgua/infraestructure/messaging"
 	sensorUVMessaging "Xilonen-1/sensorUV/infraestructure/messaging"
 	sensorTemperaturaMessaging "Xilonen-1/sensorTemperatura/infraestructure/messaging"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
 
 	
 
@@ -24,10 +24,9 @@ import (
 func main() {
 	core.InitializeApp()
 
-	// 🆕 Inicializar WebSocketServer
+	
 	wsServer := websocket.NewWebSocketServer()
 
-	// Inicializar el consumidor de aire
 	sensorAireConsumer, err := messaging.NewSensorConsumer(nil,wsServer)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Sensor Aire: %v", err)
@@ -59,7 +58,7 @@ func main() {
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
-		ExposeHeaders:    []string{"Upgrade"}, // 🆕 Permitir Upgrade para WebSocket
+		ExposeHeaders:    []string{"Upgrade"}, 
 
 	}))
 

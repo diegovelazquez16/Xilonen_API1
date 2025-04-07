@@ -6,7 +6,7 @@ import (
 
 	"Xilonen-1/humedadSuelo/aplication/usecase"
 	"Xilonen-1/humedadSuelo/domain/models"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -54,7 +54,6 @@ func (c *SensorHumedadConsumer) Start() {
 				continue
 			}
 
-			// Guardar el dato procesado en la BD usando el caso de uso
 			err := c.guardarSensorUC.GuardarDatosSensorHumedad( sensorData.ID, sensorData.ValorHumedad, sensorData.Categoria, sensorData.Tipo)
 			if err != nil {
 				log.Printf("❌ Error al guardar el dato en la BD: %v", err)
@@ -65,9 +64,8 @@ func (c *SensorHumedadConsumer) Start() {
 					"valor":      sensorData.ValorHumedad,
 					"categoria":  sensorData.Categoria,
 					"fecha_hora": sensorData.FechaHora,
-					"tipo":       "Humedad", // Identifica el sensor de calidad de aire
+					"tipo":       "Humedad", 
 				}
-				// Enviar al WebSocket
 				c.wsServer.BroadcastMessage("Humedad", message)
 			}
 		}
@@ -76,7 +74,6 @@ func (c *SensorHumedadConsumer) Start() {
 	log.Println("📡 Esperando datos de la cola 'humedad.procesado'...")
 }
 
-// Close cierra la conexión y el canal de RabbitMQ
 func (c *SensorHumedadConsumer) Close() {
 	c.channel.Close()
 	c.conn.Close()

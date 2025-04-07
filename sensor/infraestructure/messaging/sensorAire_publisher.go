@@ -5,7 +5,7 @@ import (
 	"log"
 	"Xilonen-1/sensor/domain/models"
 	"Xilonen-1/sensor/aplication/usecase"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -17,7 +17,6 @@ type SensorConsumer struct {
 	channel         *amqp.Channel
 }
 
-// NewSensorConsumer crea un consumidor con WebSocket
 func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase, wsServer *websocket.WebSocketServer) (*SensorConsumer, error) {
 	conn, err := amqp.Dial("amqp://dvelazquez:laconia@54.163.6.194:5672/")
 	if err != nil {
@@ -38,7 +37,6 @@ func NewSensorConsumer(guardarSensorUC *usecase.GuardarSensorUseCase, wsServer *
 	}, nil
 }
 
-// Start inicia el consumidor y envía datos al WebSocket
 func (c *SensorConsumer) Start() {
 	msgs, err := c.channel.Consume("aire.procesado", "", true, false, false, false, nil)
 	if err != nil {
@@ -53,7 +51,6 @@ func (c *SensorConsumer) Start() {
 				continue
 			}
 
-			// Guardar en BD
 			err := c.guardarSensorUC.GuardarDatosSensor(sensorData.Valor, sensorData.Categoria, sensorData.Tipo)
 			if err != nil {
 				log.Printf("❌ Error al guardar en la BD: %v", err)
@@ -64,9 +61,8 @@ func (c *SensorConsumer) Start() {
 					"valor":      sensorData.Valor,
 					"categoria":  sensorData.Categoria,
 					"fecha_hora": sensorData.FechaHora,
-					"tipo":       "MQ135", // Identifica el sensor de calidad de aire
+					"tipo":       "MQ135", 
 				}
-				// Enviar al WebSocket
 				c.wsServer.BroadcastMessage("MQ135", message)
 			}
 		}

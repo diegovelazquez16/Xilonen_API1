@@ -8,7 +8,7 @@ import (
 	sensorControllers "Xilonen-1/sensor/infraestructure/controllers"
 	sensorRoutes "Xilonen-1/sensor/infraestructure/routes"
 	sensorMessaging "Xilonen-1/sensor/infraestructure/messaging"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
 
 
 	"github.com/gin-gonic/gin"

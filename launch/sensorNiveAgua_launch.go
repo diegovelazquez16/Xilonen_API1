@@ -11,7 +11,8 @@ import (
 	nivelAguaControllers "Xilonen-1/nivelAgua/infraestructure/controllers"
 	nivelAguaRoutes "Xilonen-1/nivelAgua/infraestructure/routes"
 	sensorNivelAguaMessaging "Xilonen-1/nivelAgua/infraestructure/messaging"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
+
 
 
 	"github.com/gin-gonic/gin"

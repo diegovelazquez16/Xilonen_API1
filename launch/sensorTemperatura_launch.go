@@ -11,7 +11,7 @@ import (
 	sensorTemperaturaControllers "Xilonen-1/sensorTemperatura/infraestructure/controllers"
 	sensorTemperaturaRoutes "Xilonen-1/sensorTemperatura/infraestructure/routes"
 	sensorTemperaturaMessaging "Xilonen-1/sensorTemperatura/infraestructure/messaging"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
 
 
 	"github.com/gin-gonic/gin"

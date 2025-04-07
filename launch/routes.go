@@ -8,7 +8,7 @@ import (
 	sensorNivelAguaMessaging "Xilonen-1/nivelAgua/infraestructure/messaging"
 	sensorUVMessaging "Xilonen-1/sensorUV/infraestructure/messaging"
 	sensorTemperaturaMessaging "Xilonen-1/sensorTemperatura/infraestructure/messaging"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
 )
 
 

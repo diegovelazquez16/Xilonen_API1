@@ -7,7 +7,7 @@ import (
 
 	"Xilonen-1/nivelAgua/aplication/usecase"
 	"Xilonen-1/nivelAgua/domain/models"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
 
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -46,7 +46,7 @@ func NewSensorNivelAguaConsumer(guardarSensorUC *usecase.GuardarNivelAguaUseCase
 	}, nil
 }
 
-//NO olviadar que aqui se inicializa el consumidor y escucha mensajes de la cola "nivelagua.procesado"
+//NO olviadar que aqui se inicializa el consumidor y consume mensajes de la cola "nivelagua.procesado"
 func (c *SensorNivelAguaConsumer) Start() {
 	msgs, err := c.channel.Consume(
 		"nivelagua.procesado", "", true, false, false, false, nil,
@@ -73,9 +73,8 @@ func (c *SensorNivelAguaConsumer) Start() {
 					"valor":      sensorData.NivelAgua,
 					"categoria":  sensorData.Categoria,
 					"fecha_hora": sensorData.FechaHora,
-					"tipo":       "Nivel Agua", // Identifica el sensor de calidad de aire
+					"tipo":       "Nivel Agua",
 				}
-				// Enviar al WebSocket
 				c.wsServer.BroadcastMessage("Nivel Agua", message)
 			}
 		}
