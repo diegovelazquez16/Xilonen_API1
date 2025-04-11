@@ -7,17 +7,20 @@ import (
 
 	"Xilonen-1/nivelAgua/aplication/usecase"
 	"Xilonen-1/nivelAgua/domain/models"
+	"Xilonen-1/websocket"
+
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type SensorNivelAguaConsumer struct {
 	guardarSensorUC *usecase.GuardarNivelAguaUseCase
+	wsServer 		* websocket.WebSocketServer
 	conn            *amqp.Connection
 	channel         *amqp.Channel
 }
 
-func NewSensorNivelAguaConsumer(guardarSensorUC *usecase.GuardarNivelAguaUseCase) (*SensorNivelAguaConsumer, error) {
+func NewSensorNivelAguaConsumer(guardarSensorUC *usecase.GuardarNivelAguaUseCase, wsServer *websocket.WebSocketServer) (*SensorNivelAguaConsumer, error) {
 
 	rabbitURL := os.Getenv("RABBITMQ_URL") //NO olvidar cargar variables de entorno
 	if rabbitURL == "" {
@@ -37,12 +40,13 @@ func NewSensorNivelAguaConsumer(guardarSensorUC *usecase.GuardarNivelAguaUseCase
 
 	return &SensorNivelAguaConsumer{
 		guardarSensorUC: guardarSensorUC,
+		wsServer: wsServer,
 		conn:            conn,
 		channel:         ch,
 	}, nil
 }
 
-//NO olviadar que aqui se inicializa el consumidor y escucha mensajes de la cola "nivelagua.procesado"
+//NO olviadar que aqui se inicializa el consumidor y consume mensajes de la cola "nivelagua.procesado"
 func (c *SensorNivelAguaConsumer) Start() {
 	msgs, err := c.channel.Consume(
 		"nivelagua.procesado", "", true, false, false, false, nil,
@@ -59,11 +63,19 @@ func (c *SensorNivelAguaConsumer) Start() {
 				continue
 			}
 
-			err := c.guardarSensorUC.GuardarDatosNivelAgua(sensorData.NivelAgua, sensorData.Categoria)
+			err := c.guardarSensorUC.GuardarDatosNivelAgua(sensorData.NivelAgua, sensorData.Categoria, sensorData.Tipo)
 			if err != nil {
 				log.Printf("❌ Error al guardar el dato en la BD: %v", err)
-			} else {
-				log.Printf("✅ Dato guardado en BD: ID=%d, Valor=%.2f, FechaHora=%s", sensorData.ID, sensorData.NivelAgua, sensorData.FechaHora)
+			} else{
+				log.Printf("✅ Dato guardado (nivel de agua): ID=%d, Valor=%.2f", sensorData.ID, sensorData.NivelAgua)
+				message := map[string]interface{}{
+					"id":         sensorData.ID,
+					"valor":      sensorData.NivelAgua,
+					"categoria":  sensorData.Categoria,
+					"fecha_hora": sensorData.FechaHora,
+					"tipo":       "Nivel Agua",
+				}
+				c.wsServer.BroadcastMessage("Nivel Agua", message)
 			}
 		}
 	}()

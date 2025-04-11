@@ -11,11 +11,13 @@ import (
 	sensorTemperaturaControllers "Xilonen-1/sensorTemperatura/infraestructure/controllers"
 	sensorTemperaturaRoutes "Xilonen-1/sensorTemperatura/infraestructure/routes"
 	sensorTemperaturaMessaging "Xilonen-1/sensorTemperatura/infraestructure/messaging"
+	"Xilonen-1/websocket"
+
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterSensorTemperaturaModule(router *gin.Engine, sensorTemperaturaConsumer *sensorTemperaturaMessaging.SensorTemperaturaConsumer) {
+func RegisterSensorTemperaturaModule(router *gin.Engine, sensorTemperaturaConsumer *sensorTemperaturaMessaging.SensorTemperaturaConsumer, wsServer *websocket.WebSocketServer) {
 	sensorRepo := &sensorTemperaturaRepo.SensorTemperaturaRepositoryImpl{DB: core.GetDB()}
 
 	guardarSensorTemperaturaUC := &sensorTemperaturaUsecase.GuardarSensorTemperaturaUseCase{SensorRepo: sensorRepo}
@@ -26,7 +28,7 @@ func RegisterSensorTemperaturaModule(router *gin.Engine, sensorTemperaturaConsum
 
 	sensorTemperaturaRoutes.SensorTemperaturaRoutes(router, guardarSensorTemperaturaController,obtenerSensoresTemperaturaController )
 
-	TemperaturaConsumer, err := sensorTemperaturaMessaging.NewSensorTemperaturaConsumer(guardarSensorTemperaturaUC)
+	TemperaturaConsumer, err := sensorTemperaturaMessaging.NewSensorTemperaturaConsumer(guardarSensorTemperaturaUC, wsServer)
 	if err != nil {
 		log.Fatalf("❌ Error al conectar con RabbitMQ para Temperatura Suelo: %v", err)
 	}

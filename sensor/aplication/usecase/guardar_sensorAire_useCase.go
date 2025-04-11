@@ -11,7 +11,7 @@ type GuardarSensorUseCase struct {
 	SensorRepo repository.ISensorRepository
 }
 
-func (uc *GuardarSensorUseCase) GuardarDatosSensor(valor float64, categoria string) error {
+func (uc *GuardarSensorUseCase) GuardarDatosSensor(valor float64, categoria string, tipo string) error {
 	if uc.SensorRepo == nil {
 		return errors.New("❌ Error: SensorRepo no ha sido inicializado")
 	}
@@ -20,6 +20,7 @@ func (uc *GuardarSensorUseCase) GuardarDatosSensor(valor float64, categoria stri
 		Valor:     valor,
 		Categoria: categoria,
 		FechaHora: time.Now(),
+		Tipo: tipo,
 	}
 
 	return uc.SensorRepo.Guardar(&sensor)

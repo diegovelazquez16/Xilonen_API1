@@ -10,12 +10,13 @@ type GuardarSensorTemperaturaUseCase struct {
 	SensorRepo repository.ISensorTemperaturaRepository
 }
 
-func (uc *GuardarSensorTemperaturaUseCase) GuardarDatosSensorTemperatura(id uint, valor float64, categoria string) error {
+func (uc *GuardarSensorTemperaturaUseCase) GuardarDatosSensorTemperatura(id uint, valor float64, categoria string, tipo string) error {
 	sensorTemperatura := models.SensorDHT11{
 		ID: id,
 		ValorTemperatura:       valor,
 		Categoria: categoria,
 		FechaHora: time.Now(),
+		Tipo: tipo,
 	}
 
 	return uc.SensorRepo.Guardar(&sensorTemperatura)

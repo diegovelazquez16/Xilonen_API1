@@ -14,6 +14,7 @@ func (sc *GuardarSensorController) GuardarDatos(ctx *gin.Context) {
 	var datos struct {
 		Valor     float64 `json:"valor"`
 		Categoria string `json:"categoria"`
+		Tipo string `json:"tipo"`
 
 	}
 
@@ -22,7 +23,7 @@ func (sc *GuardarSensorController) GuardarDatos(ctx *gin.Context) {
 		return
 	}
 
-	if err := sc.GuardarSensorUC.GuardarDatosSensor(datos.Valor, datos.Categoria); err != nil {
+	if err := sc.GuardarSensorUC.GuardarDatosSensor(datos.Valor, datos.Categoria, datos.Tipo); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar datos"})
 		return
 	}

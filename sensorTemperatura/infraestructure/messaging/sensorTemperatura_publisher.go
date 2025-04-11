@@ -6,17 +6,21 @@ import (
 
 	"Xilonen-1/sensorTemperatura/aplication/usecase"
 	"Xilonen-1/sensorTemperatura/domain/models"
+	"Xilonen-1/websocket"
+
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type SensorTemperaturaConsumer struct {
 	guardarSensorUC *usecase.GuardarSensorTemperaturaUseCase
+	wsServer 		* websocket.WebSocketServer
+
 	conn            *amqp.Connection
 	channel         *amqp.Channel
 }
 
-func NewSensorTemperaturaConsumer(guardarSensorUC *usecase.GuardarSensorTemperaturaUseCase) (*SensorTemperaturaConsumer, error) {
+func NewSensorTemperaturaConsumer(guardarSensorUC *usecase.GuardarSensorTemperaturaUseCase, wsServer * websocket.WebSocketServer) (*SensorTemperaturaConsumer, error) {
 	conn, err := amqp.Dial("amqp://dvelazquez:laconia@54.163.6.194:5672/")
 	if err != nil {
 		return nil, err
@@ -30,6 +34,7 @@ func NewSensorTemperaturaConsumer(guardarSensorUC *usecase.GuardarSensorTemperat
 
 	return &SensorTemperaturaConsumer{
 		guardarSensorUC: guardarSensorUC,
+		wsServer: wsServer,
 		conn:            conn,
 		channel:         ch,
 	}, nil
@@ -51,13 +56,19 @@ func (c *SensorTemperaturaConsumer) Start() {
 				continue
 			}
 
-			// Guardar el dato procesado en la BD usando el caso de uso
-			err := c.guardarSensorUC.GuardarDatosSensorTemperatura( sensorData.ID, sensorData.ValorTemperatura, sensorData.Categoria)
+			err := c.guardarSensorUC.GuardarDatosSensorTemperatura( sensorData.ID, sensorData.ValorTemperatura, sensorData.Categoria, sensorData.Tipo)
 			if err != nil {
 				log.Printf("❌ Error al guardar el dato en la BD: %v", err)
 			} else {
-				log.Printf("✅ Dato guardado en BD: ID=%d, Valor=%.2f, FechaHora=%s",
-					sensorData.ID, sensorData.ValorTemperatura, sensorData.FechaHora)
+				log.Printf("✅ Dato guardado: ID=%d, Valor=%.2f", sensorData.ID, sensorData.ValorTemperatura)
+				message := map[string]interface{}{
+					"id":         sensorData.ID,
+					"valor":      sensorData.ValorTemperatura,
+					"categoria":  sensorData.Categoria,
+					"fecha_hora": sensorData.FechaHora,
+					"tipo":       "Humedad", 
+				}
+				c.wsServer.BroadcastMessage("Humedad", message)
 			}
 		}
 	}()
@@ -65,7 +76,6 @@ func (c *SensorTemperaturaConsumer) Start() {
 	log.Println("📡 Esperando datos de la cola 'temperatura.procesado'...")
 }
 
-// Close cierra la conexión y el canal de RabbitMQ
 func (c *SensorTemperaturaConsumer) Close() {
 	c.channel.Close()
 	c.conn.Close()

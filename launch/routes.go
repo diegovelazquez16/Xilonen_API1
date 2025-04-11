@@ -8,7 +8,7 @@ import (
 	sensorNivelAguaMessaging "Xilonen-1/nivelAgua/infraestructure/messaging"
 	sensorUVMessaging "Xilonen-1/sensorUV/infraestructure/messaging"
 	sensorTemperaturaMessaging "Xilonen-1/sensorTemperatura/infraestructure/messaging"
-	"Xilonen-1/sensor/infraestructure/websocket"
+	"Xilonen-1/websocket"
 )
 
 
@@ -23,12 +23,12 @@ func RegisterRoutes(
 ) {
 
 	router.GET("/ws", func(c *gin.Context) {
-		wsServer.HandleConnections(c.Writer, c.Request)
+		wsServer.HandleConnection(c.Writer, c.Request)
 	})
 	RegisterSensorModule(router, sensorAirePublisher, wsServer)
-	RegisterSensorHumedadModule(router, sensorHumedadConsumer)
-	RegisterNivelAguaModule(router, sensorNivelAguaConsumer)
+	RegisterSensorHumedadModule(router, sensorHumedadConsumer, wsServer)
+	RegisterNivelAguaModule(router, sensorNivelAguaConsumer, wsServer)
 	RegisterSensorUVModule(router, sensorUVConsumer)
 	RegisterUserModule(router)
-	RegisterSensorTemperaturaModule(router, SensorTemperaturaConsumer)
+	RegisterSensorTemperaturaModule(router, SensorTemperaturaConsumer, wsServer)
 }

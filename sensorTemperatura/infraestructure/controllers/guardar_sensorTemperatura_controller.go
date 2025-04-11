@@ -15,6 +15,8 @@ func (sc *GuardarSensorTemperaturaController) GuardarDatos(ctx *gin.Context) {
 		ID 				uint 	`json:"id"`
 		ValorTemperatura	float64 `json:"valor_Temperatura"`
 		Categoria	    string 	`json:"categoria"`
+		Tipo string `json:"tipo"`
+
 	}
 
 	if err := ctx.ShouldBindJSON(&datos); err != nil {
@@ -22,7 +24,7 @@ func (sc *GuardarSensorTemperaturaController) GuardarDatos(ctx *gin.Context) {
 		return
 	}
 
-	if err := sc.GuardarSensorTemperaturaUC.GuardarDatosSensorTemperatura(datos.ID, datos.ValorTemperatura, datos.Categoria); err != nil {
+	if err := sc.GuardarSensorTemperaturaUC.GuardarDatosSensorTemperatura(datos.ID, datos.ValorTemperatura, datos.Categoria, datos.Tipo); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar datos"})
 		return
 	}
